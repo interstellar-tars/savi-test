@@ -1,110 +1,111 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Signup - Savi</title>
-    <style>
-        * {
-            box-sizing: border-box;
-        }
-        body {
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background-color: #f2f2f2;
-            font-family: Arial, Helvetica, sans-serif;
-            overflow: hidden;
-        }
+  <meta charset="UTF-8" />
+  <title>Join Savi</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: "Segoe UI", sans-serif;
+      background: linear-gradient(to right, #2578BB, #4FACFE);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      color: #333;
+    }
 
-        .navbar {
-            position: absolute;
-            top: 0;
-            width: 100vw;
-            height: 6vh;
-            background-color: rgb(194, 192, 192);
-            display: flex;
-            align-items: center;
-            padding-left: 1rem;
-        }
-        @media (max-width: 500px) {
-            .login-container {
-                 width: 90%;
-                 padding: 1rem;
-            }
-        }
+    .signup-container {
+      background-color: white;
+      padding: 40px;
+      border-radius: 14px;
+      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+      width: 400px;
+      max-width: 90%;
+    }
 
-        .signup-container {
-            background-color: rgb(212, 212, 212);
-            padding: 2rem;
-            border-radius: 20px;
-            width: 400px;
-            text-align: center;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
+    .signup-container h1 {
+      text-align: center;
+      color: #2578BB;
+      margin-bottom: 20px;
+    }
 
-        h1 {
-            margin-bottom: 1rem;
-            font-size: 2rem;
-            font-weight: 700;
-        }
+    .signup-container p {
+      text-align: center;
+      margin-bottom: 30px;
+      color: #666;
+    }
 
-        h3 {
-            margin: 1rem 0 0.5rem;
-            font-size: 1rem;
-            font-weight: 700;
-        }
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 500;
+    }
 
-        input {
-            width: 80%;
-            padding: 0.5rem;
-            border: none;
-            border-radius: 5px;
-            margin-bottom: 1rem;
-        }
+    input[type="text"],
+    input[type="email"],
+    input[type="password"] {
+      width: 100%;
+      padding: 12px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      margin-bottom: 20px;
+      font-size: 16px;
+    }
 
-        button {
-            padding: 0.6rem 2rem;
-            border: none;
-            background-color: #333;
-            color: white;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: bold;
-        }
+    button {
+      width: 100%;
+      background-color: #2578BB;
+      color: white;
+      border: none;
+      padding: 14px;
+      font-size: 18px;
+      border-radius: 8px;
+      transition: background-color 0.3s;
+    }
 
-        button:hover {
-            background-color: #555;
-        }
+    button:hover {
+      background-color: #1f69a3;
+      cursor: pointer;
+    }
 
-        .logo {
-            height: 60%;
-            width: auto;
-        }
-    </style>
+    .signin-link {
+      margin-top: 15px;
+      text-align: center;
+    }
+
+    .signin-link a {
+      color: #2578BB;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .signin-link a:hover {
+      text-decoration: underline;
+    }
+  </style>
 </head>
-
 <body>
-    <div class="navbar">
-        <img class="logo" src="SaviLogo.png" alt="Savi Logo">
-    </div>
-    <div class="signup-container">
-        <h1>Signup</h1>
-        <form>
-            <h3>Username</h3>
-            <input type="text" name="username" required>
-            <h3>Email</h3>
-            <input type="text" name="email" required>
-            <h3>Password</h3>
-            <input type="password" name="password" required>
-            <br><br>
-            <button type="submit">Signup</button>
-        </form>
-    </div>
-</body>
+  <div class="signup-container">
+    <h1>Welcome to Savi</h1>
+    <p>Moderated, safe, and smart social sharing.</p>
+    <form>
+      <label for="username">Username</label>
+      <input type="text" id="username" name="username" placeholder="Choose a unique username" required>
 
+      <label for="email">Email</label>
+      <input type="email" id="email" name="email" placeholder="you@example.com" required>
+
+      <label for="password">Password</label>
+      <input type="password" id="password" name="password" placeholder="Enter your password" required>
+
+      <button type="submit">Create Account</button>
+    </form>
+    <div class="signin-link">
+      Already have an account? <a href="#">Sign in</a>
+    </div>
+  </div>
+</body>
 </html>
