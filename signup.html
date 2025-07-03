@@ -196,176 +196,181 @@
   </div>
 
   <script>
-    let turnstileWidgetId = null;
+  let turnstileWidgetId = null;
 
-    function renderTurnstile() {
-      const turnstileContainer = document.getElementById("turnstile-container");
-      if (turnstileWidgetId !== null) {
-        window.turnstile.reset(turnstileWidgetId);
+  function renderTurnstile() {
+    const turnstileContainer = document.getElementById("turnstile-container");
+    if (!turnstileContainer) {
+      console.error("Turnstile container element not found");
+      return;
+    }
+    if (turnstileWidgetId !== null) {
+      window.turnstile.reset(turnstileWidgetId);
+    } else {
+      turnstileWidgetId = window.turnstile.render(turnstileContainer, {
+        sitekey: "0x4AAAAAABjd_ymPZTedK83Y",
+        theme: "light",
+        callback: () => {},
+        "error-callback": () => {},
+      });
+    }
+  }
+
+  // Called by Turnstile script once loaded
+  function onTurnstileLoad() {
+    renderTurnstile();
+  }
+
+  (function () {
+    const form = document.getElementById("signup-form");
+    const emailSection = document.getElementById("email-section");
+    const phoneSection = document.getElementById("phone-section");
+    const toggleLink = document.getElementById("toggle-link");
+    const usernameInput = form.username;
+    const emailInput = form.email;
+    const phoneInput = form.phone;
+    const birthdateInput = form.birthdate;
+    const passwordInput = form.password;
+    const messageBox = document.getElementById("message-box");
+    const togglePasswordBtn = document.getElementById("toggle-password");
+    const eyeOpenIcon = document.getElementById("eye-open");
+    const eyeClosedIcon = document.getElementById("eye-closed");
+
+    // Toggle password visibility
+    togglePasswordBtn.addEventListener("click", () => {
+      if (passwordInput.type === "password") {
+        passwordInput.type = "text";
+        eyeOpenIcon.style.display = "none";
+        eyeClosedIcon.style.display = "inline";
       } else {
-        turnstileWidgetId = window.turnstile.render(turnstileContainer, {
-          sitekey: "0x4AAAAAABjd_ymPZTedK83Y",
-          theme: "light",
-          callback: () => { },
-          "error-callback": () => { },
-        });
+        passwordInput.type = "password";
+        eyeOpenIcon.style.display = "inline";
+        eyeClosedIcon.style.display = "none";
       }
+    });
+
+    // Toggle email/phone fields
+    toggleLink.addEventListener("click", (e) => {
+      e.preventDefault();
+      if (emailSection.style.display === "none") {
+        emailSection.style.display = "block";
+        phoneSection.style.display = "none";
+        toggleLink.textContent = "Use a phone number instead";
+      } else {
+        emailSection.style.display = "none";
+        phoneSection.style.display = "block";
+        toggleLink.textContent = "Use an email instead";
+      }
+      clearMessage();
+    });
+
+    function clearMessage() {
+      messageBox.textContent = "";
+      messageBox.style.color = "";
     }
 
-    // Called by Turnstile script once loaded
-    function onTurnstileLoad() {
-      renderTurnstile();
+    function showMessage(text, isError = true) {
+      messageBox.textContent = text;
+      messageBox.style.color = isError ? "red" : "green";
     }
 
-    (function () {
-      const form = document.getElementById("signup-form");
-      const emailSection = document.getElementById("email-section");
-      const phoneSection = document.getElementById("phone-section");
-      const toggleLink = document.getElementById("toggle-link");
-      const usernameInput = form.username;
-      const emailInput = form.email;
-      const phoneInput = form.phone;
-      const birthdateInput = form.birthdate;
-      const passwordInput = form.password;
-      const messageBox = document.getElementById("message-box");
-      const togglePasswordBtn = document.getElementById("toggle-password");
-      const eyeOpenIcon = document.getElementById("eye-open");
-      const eyeClosedIcon = document.getElementById("eye-closed");
+    // Validate age for 10-16 inclusive
+    function isValidAge(birthdateStr) {
+      if (!birthdateStr) return false;
+      const birthdate = new Date(birthdateStr);
+      const today = new Date();
 
-      // Toggle password visibility
-      togglePasswordBtn.addEventListener("click", () => {
-        if (passwordInput.type === "password") {
-          passwordInput.type = "text";
-          eyeOpenIcon.style.display = "none";
-          eyeClosedIcon.style.display = "inline";
-        } else {
-          passwordInput.type = "password";
-          eyeOpenIcon.style.display = "inline";
-          eyeClosedIcon.style.display = "none";
-        }
+      let age = today.getFullYear() - birthdate.getFullYear();
+      const m = today.getMonth() - birthdate.getMonth();
+      if (m < 0 || (m === 0 && today.getDate() < birthdate.getDate())) {
+        age--;
+      }
+
+      return age >= 10 && age <= 16;
+    }
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      clearMessage();
+
+      if (!usernameInput.value.trim()) {
+        showMessage("Please enter a username.");
+        return;
+      }
+      if (emailSection.style.display !== "none" && !emailInput.value.trim()) {
+        showMessage("Please enter your email address.");
+        return;
+      }
+      if (phoneSection.style.display !== "none" && !phoneInput.value.trim()) {
+        showMessage("Please enter your phone number.");
+        return;
+      }
+      if (!birthdateInput.value) {
+        showMessage("Please enter your birthdate.");
+        return;
+      }
+      if (!isValidAge(birthdateInput.value)) {
+        showMessage("You must be between 10 and 16 years old to sign up.");
+        return;
+      }
+      if (!passwordInput.value) {
+        showMessage("Please enter a password.");
+        return;
+      }
+
+      // Get Turnstile token
+      const captchaToken = await new Promise((resolve) => {
+        window.turnstile.execute(turnstileWidgetId, { async: true, callback: resolve });
       });
 
-      // Toggle email/phone fields
-      toggleLink.addEventListener("click", (e) => {
-        e.preventDefault();
-        if (emailSection.style.display === "none") {
-          emailSection.style.display = "block";
-          phoneSection.style.display = "none";
-          toggleLink.textContent = "Use a phone number instead";
-        } else {
-          emailSection.style.display = "none";
-          phoneSection.style.display = "block";
-          toggleLink.textContent = "Use an email instead";
-        }
-        clearMessage();
-      });
-
-      function clearMessage() {
-        messageBox.textContent = "";
-        messageBox.style.color = "";
+      if (!captchaToken) {
+        showMessage("Please complete the CAPTCHA challenge.");
+        return;
       }
 
-      function showMessage(text, isError = true) {
-        messageBox.textContent = text;
-        messageBox.style.color = isError ? "red" : "green";
+      // Prepare payload
+      const payload = {
+        username: usernameInput.value.trim(),
+        password: passwordInput.value,
+        dob: birthdateInput.value,
+        captchaToken,
+      };
+
+      if (emailSection.style.display !== "none") {
+        payload.email = emailInput.value.trim();
+      } else {
+        payload.phone = phoneInput.value.trim();
       }
 
-      // Validate age for 10-16 inclusive
-      function isValidAge(birthdateStr) {
-        if (!birthdateStr) return false;
-        const birthdate = new Date(birthdateStr);
-        const today = new Date();
-
-        let age = today.getFullYear() - birthdate.getFullYear();
-        const m = today.getMonth() - birthdate.getMonth();
-        if (m < 0 || (m === 0 && today.getDate() < birthdate.getDate())) {
-          age--;
-        }
-
-        return age >= 10 && age <= 16;
-      }
-
-      form.addEventListener("submit", async (e) => {
-        e.preventDefault();
-        clearMessage();
-
-        if (!usernameInput.value.trim()) {
-          showMessage("Please enter a username.");
-          return;
-        }
-        if (emailSection.style.display !== "none" && !emailInput.value.trim()) {
-          showMessage("Please enter your email address.");
-          return;
-        }
-        if (phoneSection.style.display !== "none" && !phoneInput.value.trim()) {
-          showMessage("Please enter your phone number.");
-          return;
-        }
-        if (!birthdateInput.value) {
-          showMessage("Please enter your birthdate.");
-          return;
-        }
-        if (!isValidAge(birthdateInput.value)) {
-          showMessage("You must be between 10 and 16 years old to sign up.");
-          return;
-        }
-        if (!passwordInput.value) {
-          showMessage("Please enter a password.");
-          return;
-        }
-
-        // Get Turnstile token
-        const captchaToken = await new Promise((resolve) => {
-          window.turnstile.execute(turnstileWidgetId, { async: true, callback: resolve });
-        });
-
-        if (!captchaToken) {
-          showMessage("Please complete the CAPTCHA challenge.");
-          return;
-        }
-
-        // Prepare payload
-        const payload = {
-          username: usernameInput.value.trim(),
-          password: passwordInput.value,
-          dob: birthdateInput.value,
-          captchaToken,
-        };
-
-        if (emailSection.style.display !== "none") {
-          payload.email = emailInput.value.trim();
-        } else {
-          payload.phone = phoneInput.value.trim();
-        }
-
-        try {
-          const response = await fetch(
-            "https://auth.api.st3.dolphinlabs.ie/signup",
-            {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify(payload),
-            }
-          );
-
-          const result = await response.json();
-
-          if (!response.ok) {
-            showMessage(result.error || "Signup failed. Please try again.");
-            window.turnstile.reset(turnstileWidgetId);
-            return;
+      try {
+        const response = await fetch(
+          "https://auth.api.st3.dolphinlabs.ie/signup",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
           }
+        );
 
-          showMessage("Signup successful! You may now log in.", false);
-          form.reset();
+        const result = await response.json();
+
+        if (!response.ok) {
+          showMessage(result.error || "Signup failed. Please try again.");
           window.turnstile.reset(turnstileWidgetId);
-        } catch (err) {
-          showMessage("Network error. Please try again later.");
-          window.turnstile.reset(turnstileWidgetId);
+          return;
         }
-      });
-    })();
-  </script>
+
+        showMessage("Signup successful! You may now log in.", false);
+        form.reset();
+        window.turnstile.reset(turnstileWidgetId);
+      } catch (err) {
+        showMessage("Network error. Please try again later.");
+        window.turnstile.reset(turnstileWidgetId);
+      }
+    });
+  })();
+</script>
+
 
   <!-- Cloudflare Turnstile API with callback -->
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer data-callback="onTurnstileLoad">
