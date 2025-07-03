@@ -46,13 +46,45 @@
 
     input[type="text"],
     input[type="email"],
-    input[type="password"] {
+    input[type="tel"],
+    input[type="password"],
+    input[type="date"] {
       width: 100%;
       padding: 12px;
       border-radius: 6px;
       border: 1px solid #ccc;
       margin-bottom: 20px;
       font-size: 16px;
+    }
+
+    .toggle-switch {
+      margin-top: -15px;
+      margin-bottom: 15px;
+      font-size: 13px;
+      text-align: right;
+    }
+
+    .toggle-switch a {
+      color: #2578BB;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .toggle-switch a:hover {
+      text-decoration: underline;
+    }
+
+    .password-wrapper {
+      position: relative;
+    }
+
+    .toggle-password {
+      position: absolute;
+      right: 12px;
+      top: 13px;
+      cursor: pointer;
+      font-size: 14px;
+      color: #666;
     }
 
     button {
@@ -71,18 +103,23 @@
       cursor: pointer;
     }
 
-    .signin-link {
+    .signin-link,
+    .tos-reminder {
       margin-top: 15px;
       text-align: center;
+      font-size: 13px;
+      color: #666;
     }
 
-    .signin-link a {
+    .signin-link a,
+    .tos-reminder a {
       color: #2578BB;
       text-decoration: none;
       font-weight: 500;
     }
 
-    .signin-link a:hover {
+    .signin-link a:hover,
+    .tos-reminder a:hover {
       text-decoration: underline;
     }
   </style>
@@ -90,21 +127,97 @@
 <body>
   <div class="signup-container">
     <h1>Welcome to Savi</h1>
-    <form>
+    <form onsubmit="return validateForm()" action="/signup" method="POST" novalidate>
       <label for="username">Username</label>
-      <input type="text" id="username" name="username" placeholder="Choose a unique username" required>
+      <input type="text" id="username" name="username" placeholder="Choose a unique username" required
+        oninvalid="this.setCustomValidity('Please enter a username')"
+        oninput="this.setCustomValidity('')">
 
-      <label for="email">Email</label>
-      <input type="email" id="email" name="email" placeholder="you@example.com" required>
+      <div id="email-section">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" placeholder="you@example.com"
+          oninvalid="this.setCustomValidity('Please enter a valid email')"
+          oninput="this.setCustomValidity('')">
+      </div>
+
+      <div id="phone-section" style="display: none;">
+        <label for="phone">Phone Number</label>
+        <input type="tel" id="phone" name="phone" placeholder="e.g. 083 123 4567"
+          oninvalid="this.setCustomValidity('Please enter a valid phone number')"
+          oninput="this.setCustomValidity('')">
+      </div>
+
+      <div class="toggle-switch">
+        <a href="#" onclick="toggleContactMethod(event)" id="toggle-link">Use a phone number instead</a>
+      </div>
+
+      <label for="birthdate">Birthdate</label>
+      <input type="date" id="birthdate" name="birthdate" required
+        oninvalid="this.setCustomValidity('Please enter your birthdate')"
+        oninput="this.setCustomValidity('')">
 
       <label for="password">Password</label>
-      <input type="password" id="password" name="password" placeholder="Enter your password" required>
+      <div class="password-wrapper">
+        <input type="password" id="password" name="password" placeholder="Enter your password" required
+          oninvalid="this.setCustomValidity('Please enter a password')"
+          oninput="this.setCustomValidity('')">
+        <span class="toggle-password" onclick="togglePassword()">👁️</span>
+      </div>
 
       <button type="submit">Create Account</button>
     </form>
+
+    <div class="tos-reminder">
+      By signing up, you confirm that you agree to our
+      <a href="/tos" target="_blank">ToS</a> and
+      <a href="/privacy" target="_blank">Privacy Policy</a>.
+    </div>
+
     <div class="signin-link">
-      Already have an account? <a href="#">Sign in</a>
+      Already have an account? <a href="/login">Sign in</a>
     </div>
   </div>
+
+  <script>
+    function togglePassword() {
+      const input = document.getElementById("password");
+      input.type = input.type === "password" ? "text" : "password";
+    }
+
+    function toggleContactMethod(e) {
+      e.preventDefault();
+      const emailSection = document.getElementById("email-section");
+      const phoneSection = document.getElementById("phone-section");
+      const toggleLink = document.getElementById("toggle-link");
+
+      if (emailSection.style.display === "none") {
+        emailSection.style.display = "block";
+        phoneSection.style.display = "none";
+        toggleLink.textContent = "Use a phone number instead";
+      } else {
+        emailSection.style.display = "none";
+        phoneSection.style.display = "block";
+        toggleLink.textContent = "Use an email instead";
+      }
+    }
+
+    function validateForm() {
+      const emailVisible = document.getElementById("email-section").style.display !== "none";
+      const emailInput = document.getElementById("email").value.trim();
+      const phoneInput = document.getElementById("phone").value.trim();
+
+      if (emailVisible && emailInput === "") {
+        alert("Please enter your email address.");
+        return false;
+      }
+
+      if (!emailVisible && phoneInput === "") {
+        alert("Please enter your phone number.");
+        return false;
+      }
+
+      return true;
+    }
+  </script>
 </body>
 </html>
