@@ -122,6 +122,17 @@
     .tos-reminder a:hover {
       text-decoration: underline;
     }
+    .toggle-password {
+     position: absolute;
+     right: 12px;
+     top: 13px;
+     cursor: pointer;
+     display: flex;
+     align-items: center;
+    }
+    .toggle-password svg {
+      pointer-events: none;
+    }
   </style>
 </head>
 <body>
@@ -188,10 +199,22 @@
   </div>
 
   <script>
-    function togglePassword() {
-      const input = document.getElementById("password");
-      input.type = input.type === "password" ? "text" : "password";
-    }
+   function togglePassword() {
+   const input = document.getElementById("password");
+   const eyeOpen = document.getElementById("eye-open");
+    const eyeClosed = document.getElementById("eye-closed");
+
+   if (input.type === "password") {
+    input.type = "text";
+    eyeOpen.style.display = "none";
+    eyeClosed.style.display = "inline";
+  } else {
+    input.type = "password";
+    eyeOpen.style.display = "inline";
+    eyeClosed.style.display = "none";
+  }
+  }
+
 
     function toggleContactMethod(e) {
       e.preventDefault();
