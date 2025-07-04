@@ -71,12 +71,12 @@
       cursor: pointer;
     }
 
-    .signin-link {
+    .signup-link {
       margin-top: 15px;
       text-align: center;
     }
 
-    .signin-link a {
+    .signup-link a {
       color: #2578BB;
       text-decoration: none;
       font-weight: 500;
@@ -85,12 +85,19 @@
     .signup-link a:hover {
       text-decoration: underline;
     }
+
+    .error-message {
+      color: red;
+      margin-bottom: 15px;
+      text-align: center;
+    }
   </style>
 </head>
 <body>
   <div class="login-container">
     <h1>Login to Savi</h1>
-    <form>
+    <form id="loginForm">
+      <div class="error-message" id="errorMsg"></div>
       <label for="usernameOrEmail">Username or Email</label>
       <input type="text" id="usernameOrEmail" placeholder="e.g. user123 or you@email.com" required>
 
@@ -103,5 +110,40 @@
       Don't have an account? <a href="/signup">Sign Up!</a>
     </div>
   </div>
+
+  <script>
+    document.getElementById('loginForm').addEventListener('submit', async function (e) {
+      e.preventDefault();
+
+      const username = document.getElementById('usernameOrEmail').value.trim();
+      const password = document.getElementById('password').value;
+
+      const errorMsg = document.getElementById('errorMsg');
+      errorMsg.textContent = '';
+
+      try {
+        const res = await fetch('https://auth.apis.st3.dolphinlabs.ie/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          credentials: 'include',
+          body: JSON.stringify({ username, password })
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          errorMsg.textContent = data.error || 'Login failed.';
+        } else {
+          // Redirect to main dashboard or homepage
+          window.location.href = '/dashboard';
+        }
+      } catch (err) {
+        errorMsg.textContent = 'Network error. Please try again later.';
+        console.error(err);
+      }
+    });
+  </script>
 </body>
 </html>
