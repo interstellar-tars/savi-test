@@ -136,8 +136,7 @@
         if (!res.ok) {
           errorMsg.textContent = data.error || 'Login failed.';
         } else {
-          // Redirect to main dashboard or homepage
-          window.location.href = '/dashboard';
+          window.location.href = '/home';
         }
       } catch (err) {
         errorMsg.textContent = 'Network error. Please try again later.';
