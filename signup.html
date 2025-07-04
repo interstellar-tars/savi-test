@@ -195,32 +195,7 @@
     </div>
   </div>
 
- <script>
-  let turnstileWidgetId = null;
-
-  function renderTurnstile() {
-    const turnstileContainer = document.getElementById("turnstile-container");
-    if (!turnstileContainer) {
-      console.error("Turnstile container element not found");
-      return;
-    }
-    if (turnstileWidgetId !== null) {
-      window.turnstile.reset(turnstileWidgetId);
-    } else {
-      turnstileWidgetId = window.turnstile.render(turnstileContainer, {
-        sitekey: "0x4AAAAAABjd_ymPZTedK83Y",
-        theme: "light",
-        callback: () => {},
-        "error-callback": () => {},
-      });
-    }
-  }
-
-  // Called by Turnstile script once loaded
-  function onTurnstileLoad() {
-    renderTurnstile();
-  }
-
+<script>
   (function () {
     const form = document.getElementById("signup-form");
     const emailSection = document.getElementById("email-section");
@@ -318,22 +293,11 @@
         return;
       }
 
-      // Get Turnstile token
-      const captchaToken = await new Promise((resolve) => {
-        window.turnstile.execute(turnstileWidgetId, { async: true, callback: resolve });
-      });
-
-      if (!captchaToken) {
-        showMessage("Please complete the CAPTCHA challenge.");
-        return;
-      }
-
       // Prepare payload
       const payload = {
         username: usernameInput.value.trim(),
         password: passwordInput.value,
         dob: birthdateInput.value,
-        captchaToken,
       };
 
       if (emailSection.style.display !== "none") {
@@ -356,24 +320,17 @@
 
         if (!response.ok) {
           showMessage(result.error || "Signup failed. Please try again.");
-          window.turnstile.reset(turnstileWidgetId);
           return;
         }
 
         showMessage("Signup successful! You may now log in.", false);
         form.reset();
-        window.turnstile.reset(turnstileWidgetId);
       } catch (err) {
         showMessage("Network error. Please try again later.");
-        window.turnstile.reset(turnstileWidgetId);
       }
     });
   })();
 </script>
 
-
-  <!-- Cloudflare Turnstile API with callback -->
-  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer data-callback="onTurnstileLoad">
-  </script>
 </body>
 </html>
